@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+.venv/
+venv/
+env/
+
+.env
+.env.*
+
+token.json
+credentials.json
+
+.DS_Store
