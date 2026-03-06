@@ -19,6 +19,7 @@ SCOPES = [
     "https://www.googleapis.com/auth/gmail.send",
     "https://www.googleapis.com/auth/gmail.readonly",
 ]
+GMAIL_SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send"
 
 
 @dataclass
@@ -136,20 +137,28 @@ def save_tracking_state(
     )
 
 
-def get_gmail_service(credentials_file: Path, token_file: Path) -> Resource:
+def get_gmail_service(
+    credentials_file: Path,
+    token_file: Path,
+    scopes: list[str] | None = None,
+) -> Resource:
     """Authenticate with Gmail API and return a Gmail service client."""
+    requested_scopes = scopes or SCOPES
     credentials: Credentials | None = None
 
     if token_file.exists():
-        credentials = Credentials.from_authorized_user_file(str(token_file), SCOPES)
-        if credentials.scopes and not set(SCOPES).issubset(set(credentials.scopes)):
+        credentials = Credentials.from_authorized_user_file(str(token_file), requested_scopes)
+        if credentials.scopes and not set(requested_scopes).issubset(set(credentials.scopes)):
             credentials = None
 
     if not credentials or not credentials.valid:
         if credentials and credentials.expired and credentials.refresh_token:
             credentials.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(str(credentials_file), SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(
+                str(credentials_file),
+                requested_scopes,
+            )
             credentials = flow.run_local_server(port=0)
 
         token_file.write_text(credentials.to_json(), encoding="utf-8")
@@ -161,12 +170,15 @@ def build_message(
     recipient: str,
     subject: str,
     body: str,
+    cc_recipients: list[str] | None = None,
     in_reply_to: str | None = None,
 ) -> str:
     """Build and base64-encode a MIME message for Gmail API."""
     message = MIMEText(body, _charset="utf-8")
     message["to"] = recipient
     message["subject"] = subject
+    if cc_recipients:
+        message["cc"] = ", ".join(cc_recipients)
 
     if in_reply_to:
         message["In-Reply-To"] = in_reply_to
@@ -221,17 +233,29 @@ def send_initial_email(
     recipient: str,
     subject: str,
     body: str,
+    cc_recipients: list[str] | None = None,
 ) -> EmailTrackingRecord:
     """Send first contact email and return tracking data."""
-    raw_message = build_message(recipient=recipient, subject=subject, body=body)
+    raw_message = build_message(
+        recipient=recipient,
+        subject=subject,
+        body=body,
+        cc_recipients=cc_recipients,
+    )
     response = send_message(service=service, raw_message=raw_message)
 
     message_id = response.get("id", "")
     thread_id = response.get("threadId", "")
 
-    metadata = get_message_metadata(service, message_id)
-    rfc822_message_id = get_message_header(metadata, "Message-ID")
-    initial_sent_at = parse_internal_date(metadata.get("internalDate")) or utc_now_iso()
+    rfc822_message_id: str | None = None
+    initial_sent_at = utc_now_iso()
+    try:
+        metadata = get_message_metadata(service, message_id)
+        rfc822_message_id = get_message_header(metadata, "Message-ID")
+        initial_sent_at = parse_internal_date(metadata.get("internalDate")) or initial_sent_at
+    except HttpError:
+        # Metadata read requires a read scope; sending still succeeds with send-only scope.
+        pass
 
     return EmailTrackingRecord(
         recipient=recipient,

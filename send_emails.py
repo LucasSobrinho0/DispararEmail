@@ -5,6 +5,7 @@ from pathlib import Path
 from googleapiclient.errors import HttpError
 
 from email_campaign_core import (
+    GMAIL_SEND_SCOPE,
     get_gmail_service,
     load_recipients,
     load_tracking_state,
@@ -19,14 +20,30 @@ TOKEN_FILE = Path("token.json")
 RECIPIENTS_CSV_FILE = Path("emails.csv")
 TRACKING_FILE = Path("email_tracking_state.json")
 
-INITIAL_EMAIL_SUBJECT = "teste"
-INITIAL_EMAIL_BODY = "email de teste"
+INITIAL_EMAIL_SUBJECT = "SUA EMPRESA ESTÁ PERDENDO DINHEIRO EM TELECOM? VEJA COMO IDENTIFICAR E RESOLVER ISSO"
+INITIAL_EMAIL_BODY = """
+Olá, tudo bem?
+
+Sou Ana e trabalho na Alow.
+
+A plataforma mostra onde empresas estão perdendo dinheiro em telecom como linhas paradas, internet ociosa ou cobranças indevidas nas faturas.
+
+Além de identificar, o sistema também faz a contestação direto na operadora e nosso time acompanha todo o processo.
+
+Faz sentido te mostrar em 20 minutos como isso aparece na prática?
+"""
+
+INITIAL_EMAIL_CC = ["hello-98@alow.hs-inbox.com"]
 
 
 def main() -> None:
     """Send initial emails and persist metadata needed for reply tracking."""
     try:
-        gmail_service = get_gmail_service(CREDENTIALS_FILE, TOKEN_FILE)
+        gmail_service = get_gmail_service(
+            CREDENTIALS_FILE,
+            TOKEN_FILE,
+            scopes=[GMAIL_SEND_SCOPE],
+        )
         recipients = load_recipients(RECIPIENTS_CSV_FILE)
         tracking_records = load_tracking_state(TRACKING_FILE)
 
@@ -42,6 +59,7 @@ def main() -> None:
                     recipient=recipient,
                     subject=INITIAL_EMAIL_SUBJECT,
                     body=INITIAL_EMAIL_BODY,
+                    cc_recipients=INITIAL_EMAIL_CC,
                 )
                 tracking_records[key] = record
                 print(
