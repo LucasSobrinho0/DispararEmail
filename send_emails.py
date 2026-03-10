@@ -22,15 +22,17 @@ TRACKING_FILE = Path("email_tracking_state.json")
 
 INITIAL_EMAIL_SUBJECT = "SUA EMPRESA ESTÁ PERDENDO DINHEIRO EM TELECOM? VEJA COMO IDENTIFICAR E RESOLVER ISSO"
 INITIAL_EMAIL_BODY = """
-Olá, tudo bem?
+Oi, boa tarde, tudo bem?
 
 Sou Ana e trabalho na Alow.
 
-A plataforma mostra onde empresas estão perdendo dinheiro em telecom como linhas paradas, internet ociosa ou cobranças indevidas nas faturas.
+A plataforma mostra onde empresas estão perdendo dinheiro em telecom, como linhas paradas, internet ociosa ou cobranças indevidas nas faturas.
 
 Além de identificar, o sistema também faz a contestação direto na operadora e nosso time acompanha todo o processo.
 
 Faz sentido te mostrar em 20 minutos como isso aparece na prática?
+
+Assinado: Ana Paula, SDR do Alow
 """
 
 INITIAL_EMAIL_CC = ["hello-98@alow.hs-inbox.com"]
