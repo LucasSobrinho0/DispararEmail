@@ -4,6 +4,10 @@ from pathlib import Path
 
 from googleapiclient.errors import HttpError
 
+from time import sleep
+
+from random import randint
+
 from email_campaign_core import (
     GMAIL_SEND_SCOPE,
     get_gmail_service,
@@ -22,7 +26,7 @@ TRACKING_FILE = Path("email_tracking_state.json")
 
 INITIAL_EMAIL_SUBJECT = "SUA EMPRESA ESTÁ PERDENDO DINHEIRO EM TELECOM? VEJA COMO IDENTIFICAR E RESOLVER ISSO"
 INITIAL_EMAIL_BODY = """
-Oi, boa tarde, tudo bem?
+Oi, bom dia, tudo bem?
 
 Sou Ana e trabalho na Alow.
 
@@ -68,11 +72,15 @@ def main() -> None:
                     f"Initial email sent to {recipient} "
                     f"(message id: {record.initial_message_id}, thread id: {record.thread_id})."
                 )
+                number = randint(30, 60)
+                sleep(number)
             except HttpError as error:
                 print(f"Failed to send to {recipient}: {safe_http_error_message(error)}")
+                
 
         save_tracking_state(TRACKING_FILE, tracking_records)
         print(f"Tracking file updated: {TRACKING_FILE.resolve()}")
+        
     except FileNotFoundError as error:
         print(f"File not found: {error.filename}")
     except ValueError as error:
