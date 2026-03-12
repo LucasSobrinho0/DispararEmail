@@ -24,9 +24,9 @@ TOKEN_FILE = Path("token.json")
 RECIPIENTS_CSV_FILE = Path("emails.csv")
 TRACKING_FILE = Path("email_tracking_state.json")
 
-INITIAL_EMAIL_SUBJECT = "SUA EMPRESA ESTÁ PERDENDO DINHEIRO EM TELECOM? VEJA COMO IDENTIFICAR E RESOLVER ISSO"
+INITIAL_EMAIL_SUBJECT = "Você está perdendo dinheiro com telecom! Entenda como..."
 INITIAL_EMAIL_BODY = """
-Oi, bom dia, tudo bem?
+Oi, boa tarde, tudo bem?
 
 Sou Ana e trabalho na Alow.
 
@@ -72,7 +72,7 @@ def main() -> None:
                     f"Initial email sent to {recipient} "
                     f"(message id: {record.initial_message_id}, thread id: {record.thread_id})."
                 )
-                number = randint(30, 60)
+                number = randint(10, 20)
                 sleep(number)
             except HttpError as error:
                 print(f"Failed to send to {recipient}: {safe_http_error_message(error)}")
