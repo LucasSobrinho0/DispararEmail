@@ -26,7 +26,7 @@ TRACKING_FILE = Path("email_tracking_state.json")
 
 INITIAL_EMAIL_SUBJECT = "Você está perdendo dinheiro com telecom! Entenda como..."
 INITIAL_EMAIL_BODY = """
-Oi, boa tarde, tudo bem?
+Oi, bom dia, tudo bem?
 
 Sou Ana e trabalho na Alow.
 
@@ -36,7 +36,7 @@ Além de identificar, o sistema também faz a contestação direto na operadora 
 
 Faz sentido te mostrar em 20 minutos como isso aparece na prática?
 
-Assinado: Ana Paula, SDR do Alow
+Ana Paula Dias, SDR do Alow
 """
 
 INITIAL_EMAIL_CC = ["hello-98@alow.hs-inbox.com"]
